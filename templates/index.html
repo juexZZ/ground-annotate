@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene Annotation Tool</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body data-dataset-root="{{ dataset_root }}">
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <h1>Human Annotation Tool</h1>
+        <p class="subtitle">Select a scene, compare Image A and Image B, then click on new objects in Image B.</p>
+      </div>
+      <div class="dataset-path">
+        <span>Dataset root:</span>
+        <code>{{ dataset_root }}</code>
+      </div>
+    </header>
+
+    <section class="controls">
+      <div class="control-group">
+        <label for="sceneSelect">Scene</label>
+        <select id="sceneSelect" aria-label="Scene selector"></select>
+      </div>
+      <button id="nextScene" type="button" class="primary">Next ▶</button>
+      <div id="sceneStatus" class="scene-status" aria-live="polite"></div>
+    </section>
+
+    <div class="layout">
+      <aside class="scene-browser">
+        <div class="scene-browser__header">
+          <strong>Scenes</strong>
+          <small>Click to jump to any scene. Annotated scenes are highlighted.</small>
+        </div>
+        <div id="sceneList" class="scene-list" role="list"></div>
+      </aside>
+
+      <main class="workspace">
+        <div class="image-area">
+          <div class="image-panel">
+            <div class="panel-header">
+              <h3>Image A</h3>
+              <span class="tag">Reference</span>
+            </div>
+            <div class="image-wrapper">
+              <img id="imageA" alt="Scene reference" />
+            </div>
+          </div>
+          <div class="image-panel">
+            <div class="panel-header">
+              <h3>Image B</h3>
+              <span class="tag accent">Annotate</span>
+            </div>
+            <div id="imageBWrapper" class="image-wrapper click-target">
+              <img id="imageB" alt="Scene for annotation" />
+              <div id="clickMarker" class="click-marker hidden"></div>
+            </div>
+            <p class="hint">Click on the newly appeared object in Image B to create or overwrite an annotation.</p>
+          </div>
+        </div>
+
+        <section class="annotation-panel" aria-live="polite">
+          <h3>Annotation</h3>
+          <div id="annotationSummary" class="annotation-summary"></div>
+          <div class="form-row">
+            <label>Coordinate</label>
+            <div id="coordinateDisplay" class="coord-display">Click Image B to select a point.</div>
+          </div>
+          <div class="form-row">
+            <label for="labelInput">Category label</label>
+            <input id="labelInput" type="text" placeholder="e.g., bicycle" autocomplete="off" />
+          </div>
+          <div class="action-row">
+            <button id="confirmBtn" type="button" class="primary" disabled>Confirm</button>
+            <button id="cancelBtn" type="button" disabled>Cancel</button>
+          </div>
+          <div class="status-line" id="saveStatus"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
