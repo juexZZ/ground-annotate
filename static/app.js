@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
   dom.cancelBtn = document.getElementById('cancelBtn');
   dom.saveStatus = document.getElementById('saveStatus');
   dom.sceneStatus.dataset.locked = 'false';
+  dom.uploadForm = document.getElementById('uploadForm');
+  dom.uploadSceneId = document.getElementById('uploadSceneId');
+  dom.uploadImageA = document.getElementById('uploadImageA');
+  dom.uploadImageB = document.getElementById('uploadImageB');
+  dom.uploadStatus = document.getElementById('uploadStatus');
 
   dom.sceneSelect.addEventListener('change', (event) => {
     loadScene(event.target.value);
@@ -52,6 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAnnotationSummary();
     updateCoordinateDisplay();
   });
+
+  if (dom.uploadForm) {
+    dom.uploadForm.addEventListener('submit', handleUploadSubmit);
+  }
 
   fetchScenes();
 });
@@ -372,6 +381,55 @@ async function submitAnnotation() {
     console.error(error);
     dom.saveStatus.textContent = 'Failed to save annotation.';
   }
+}
+
+async function handleUploadSubmit(event) {
+  event.preventDefault();
+  if (!dom.uploadImageA?.files?.length || !dom.uploadImageB?.files?.length) {
+    dom.uploadStatus.textContent = 'Please choose both Image A and Image B.';
+    return;
+  }
+  const sceneName = dom.uploadSceneId.value.trim();
+  const formData = new FormData();
+  if (sceneName) {
+    formData.append('scene_id', sceneName);
+  }
+  formData.append('image_a', dom.uploadImageA.files[0]);
+  formData.append('image_b', dom.uploadImageB.files[0]);
+
+  dom.uploadStatus.textContent = 'Uploading…';
+  try {
+    const response = await fetch('/api/scenes/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || 'Upload failed');
+    }
+    const payload = await response.json();
+    const newScene = payload.scene;
+    upsertScene(newScene);
+    dom.uploadForm.reset();
+    dom.uploadStatus.textContent = `Scene '${newScene.name}' uploaded.`;
+    loadScene(newScene.id);
+  } catch (error) {
+    console.error(error);
+    dom.uploadStatus.textContent = 'Upload failed. Please try again.';
+  }
+}
+
+function upsertScene(scene) {
+  const index = state.scenes.findIndex((item) => item.id === scene.id);
+  if (index >= 0) {
+    state.scenes[index] = scene;
+  } else {
+    state.scenes.push(scene);
+  }
+  state.scenes.sort((a, b) => a.name.localeCompare(b.name));
+  renderSceneOptions();
+  renderSceneList();
+  updateSceneStatus(true);
 }
 
 function updateSceneAnnotatedFlag(sceneId, annotated) {

@@ -79,6 +79,27 @@
           </div>
           <div class="status-line" id="saveStatus"></div>
         </section>
+
+        <section class="upload-panel">
+          <h3>Create new scene</h3>
+          <p class="hint">Upload Image A (reference) and Image B (current observation). The tool will create a new folder and load it for annotation.</p>
+          <form id="uploadForm" class="upload-form" autocomplete="off">
+            <div class="form-row">
+              <label for="uploadSceneId">Scene name (optional)</label>
+              <input id="uploadSceneId" type="text" placeholder="e.g., street_view_01" maxlength="80" />
+            </div>
+            <div class="form-row">
+              <label for="uploadImageA">Image A</label>
+              <input id="uploadImageA" type="file" accept="image/*" required />
+            </div>
+            <div class="form-row">
+              <label for="uploadImageB">Image B</label>
+              <input id="uploadImageB" type="file" accept="image/*" required />
+            </div>
+            <button type="submit" class="secondary">Upload scene</button>
+            <div class="status-line upload-status" id="uploadStatus"></div>
+          </form>
+        </section>
       </main>
     </div>
   </div>

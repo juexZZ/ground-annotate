@@ -101,6 +101,12 @@ button.primary {
   border-color: var(--accent);
 }
 
+button.secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -291,6 +297,13 @@ button:disabled {
   padding: 1rem 1.5rem;
 }
 
+.upload-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+}
+
 .annotation-summary {
   font-size: 0.95rem;
   margin-bottom: 0.75rem;
@@ -340,6 +353,14 @@ input[type="text"] {
   border-radius: 8px;
   border: 1px solid var(--border);
   font-size: 1rem;
+  background: #fff;
+}
+
+input[type="file"] {
+  padding: 0.4rem;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  background: #fff;
 }
 
 .action-row {
@@ -353,6 +374,10 @@ input[type="text"] {
   font-size: 0.9rem;
   color: var(--muted);
   min-height: 1.2rem;
+}
+
+.upload-status {
+  margin-top: 0.35rem;
 }
 
 @media (max-width: 1050px) {

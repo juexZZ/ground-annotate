@@ -36,6 +36,13 @@ python annotate/server.py /path/to/root_folder
 
 Default host/port are `127.0.0.1:1234`. You can customize them with `--host` or `--port` if needed. When the server is running, open `http://localhost:1234` in your browser.
 
+### Remote access
+
+If the dataset lives on a remote workstation but you want to annotate from a laptop:
+
+- Launch the server on the workstation with a publicly reachable interface, e.g. `python annotate/server.py /data/path --host 0.0.0.0 --port 1234`, and open `http://<workstation-ip>:1234` from your laptop (make sure firewalls allow that port).
+- Alternatively, use SSH port forwarding: `ssh -L 1234:localhost:1234 user@workstation` and run the server on the workstation with the default host/port; then browse to `http://localhost:1234` locally.
+
 ## Using the UI
 
 - The scene dropdown and sidebar list let you jump to any subfolder; annotated scenes are marked in green and show a check icon when active.
@@ -43,6 +50,15 @@ Default host/port are `127.0.0.1:1234`. You can customize them with `--host` or 
 - Image A (left) is a read-only reference. Image B (right) is clickable: clicking records the coordinate of the new object (coordinates are stored in Image B pixel space, adjusted for scaling).
 - After clicking Image B, a sidebar form shows the coordinate and lets you type a category label. "Confirm" writes `annotation.json` in the scene folder (overwriting any previous annotation). "Cancel" discards the pending click.
 - Saved annotations automatically re-appear when you revisit a scene, and you can overwrite them by clicking and confirming again.
+- A "Create new scene" panel lets you upload `image_a`/`image_b` pairs directly from your machine; the tool will create a new subfolder, ingest the files, and immediately load it for annotation.
+
+## Uploading new scenes
+
+Use the upload panel on the right side of the UI:
+
+1. (Optional) Provide a scene name consisting of letters, numbers, `_` or `-`. If left blank, the tool will generate a timestamped name.
+2. Pick `image_a` and `image_b` from your machine (supported: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`).
+3. Click **Upload scene**. A new subdirectory will be created under the dataset root, the files will be saved inside it, and the UI will automatically switch to that scene so you can annotate immediately.
 
 ## Annotation format
 

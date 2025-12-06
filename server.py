@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -8,6 +9,7 @@ from flask import Flask, abort, jsonify, render_template, request, send_file, ur
 from PIL import Image
 
 SUPPORTED_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".bmp", ".webp")
+SCENE_ID_SAFE_PATTERN = re.compile(r"[^A-Za-z0-9_-]+")
 
 
 def create_app(data_root: Path) -> Flask:
@@ -80,6 +82,30 @@ def create_app(data_root: Path) -> Flask:
             "updated_at": payload.get("updated_at"),
             "image_size": size_payload,
         }
+
+    def _normalize_scene_id(raw_value: str) -> Optional[str]:
+        cleaned = SCENE_ID_SAFE_PATTERN.sub("_", raw_value)
+        cleaned = cleaned.strip("_")
+        if not cleaned:
+            return None
+        return cleaned[:80]
+
+    def _generate_scene_id() -> str:
+        base = datetime.now().strftime("scene_%Y%m%d_%H%M%S")
+        candidate = base
+        counter = 1
+        while (resolved_root / candidate).exists():
+            candidate = f"{base}_{counter:03d}"
+            counter += 1
+        return candidate
+
+    def _validate_image_file(file_storage, label: str) -> str:
+        if file_storage is None or not file_storage.filename:
+            abort(400, description=f"{label} file is required.")
+        suffix = Path(file_storage.filename).suffix.lower()
+        if suffix not in SUPPORTED_IMAGE_EXTENSIONS:
+            abort(400, description=f"{label} must be one of: {', '.join(SUPPORTED_IMAGE_EXTENSIONS)}")
+        return suffix
 
     def _scene_payload(scene_dir: Path) -> Dict:
         name = scene_dir.name
@@ -163,6 +189,33 @@ def create_app(data_root: Path) -> Flask:
         return jsonify({
             "status": "ok",
             "annotation": annotation_payload["annotation"],
+        })
+
+    @app.route("/api/scenes/upload", methods=["POST"])
+    def upload_scene():
+        scene_id_raw = request.form.get("scene_id", "").strip()
+        normalized_scene_id = _normalize_scene_id(scene_id_raw) if scene_id_raw else None
+        if scene_id_raw and not normalized_scene_id:
+            abort(400, description="Scene name must contain letters, numbers, '_' or '-'.")
+
+        scene_id = normalized_scene_id or _generate_scene_id()
+        scene_dir = resolved_root / scene_id
+        if scene_dir.exists():
+            abort(400, description=f"Scene '{scene_id}' already exists. Please pick a different name.")
+
+        file_a = request.files.get("image_a")
+        file_b = request.files.get("image_b")
+        suffix_a = _validate_image_file(file_a, "Image A")
+        suffix_b = _validate_image_file(file_b, "Image B")
+
+        scene_dir.mkdir(parents=False, exist_ok=False)
+        file_a.save(scene_dir / f"image_a{suffix_a}")
+        file_b.save(scene_dir / f"image_b{suffix_b}")
+
+        payload = _scene_payload(scene_dir)
+        return jsonify({
+            "status": "ok",
+            "scene": payload,
         })
 
     return app
