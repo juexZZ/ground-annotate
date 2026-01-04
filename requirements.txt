@@ -1,2 +1,11 @@
 Flask>=3.0.0,<4.0.0
 Pillow>=10.0.0,<11.0.0
+numpy>=1.21.0
+torch>=2.0.0
+torchvision>=0.15.0
+# For SAM3, install from GitHub:
+# pip install git+https://github.com/facebookresearch/sam3.git
+# or
+# git clone https://github.com/facebookresearch/sam3.git
+# cd sam3
+# pip install -e .

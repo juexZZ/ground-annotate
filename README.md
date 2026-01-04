@@ -31,7 +31,7 @@ pip install -r annotate/requirements.txt
 ## Running the server
 
 ```
-python annotate/server.py /path/to/root_folder
+python server.py /path/to/root_folder
 ```
 
 Default host/port are `127.0.0.1:1234`. You can customize them with `--host` or `--port` if needed. When the server is running, open `http://localhost:1234` in your browser.
@@ -79,7 +79,72 @@ Each confirmation creates/overwrites `<scene>/annotation.json` with the followin
 
 `x` and `y` are stored in raw Image B pixel units (not screen coordinates) so they remain valid even if the UI is resized. The `image_size` entry captures the width and height of `image_b` at the time of annotation. Re-running the tool simply reuses the existing JSON files.
 
+## Generating Masks with SAM3
+
+After creating annotations, you can generate object masks using SAM3 (Segment Anything Model 3) based on the annotated points.
+
+### Setup
+
+1. Install additional dependencies:
+   ```bash
+   pip install numpy torch torchvision
+   pip install git+https://github.com/facebookresearch/sam3.git
+   ```
+   
+   Or install from source:
+   ```bash
+   git clone https://github.com/facebookresearch/sam3.git
+   cd sam3
+   pip install -e .
+   ```
+
+2. Download SAM3 checkpoint files (if required) from:
+   - https://github.com/facebookresearch/sam3
+   - Note: Some SAM3 models may auto-download checkpoints on first use
+
+### Usage
+
+Generate masks for all scenes:
+```bash
+python generate_mask.py /path/to/root_folder --model-path /path/to/sam3_h.pt
+```
+
+Generate mask for a specific scene:
+```bash
+python generate_mask.py /path/to/root_folder --scene scene_001 --model-path /path/to/sam3_h.pt
+```
+
+Options:
+- `--model-path`: Path to SAM3 checkpoint file (required)
+- `--model-type`: Model type - `vit_h`, `vit_l`, or `vit_b` (default: `vit_h`)
+- `--scene`: Process specific scene only (optional, processes all if not specified)
+
+The script will:
+1. Read the annotation point from `annotation.json`
+2. Generate a mask using SAM3 based on the point
+3. Save the mask as `mask.png` in the scene directory
+4. Update `annotation.json` to include a reference to the mask
+
+### Updated Annotation Format
+
+After mask generation, the annotation file will include a mask reference:
+
+```json
+{
+  "scene": "scene_001",
+  "annotation": {
+    "point": {"x": 512.4, "y": 318.2},
+    "label": "bicycle",
+    "updated_at": "2024-05-01T12:34:56.789123+00:00",
+    "image": "image_b.jpg",
+    "image_size": {"width": 1024, "height": 768},
+    "mask": "mask.png"
+  }
+}
+```
+
 ## Development notes
 
 - The server is a small Flask app located in `annotate/server.py`. Static assets live under `annotate/static/` and the HTML template is in `annotate/templates/`.
 - No external services are required; everything runs locally.
+- Mask generation script: `generate_mask.py`
