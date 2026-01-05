@@ -19,42 +19,55 @@ from PIL import Image
 # Set environment variable for MPS fallback if needed
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
-try:
-    import sam3
-    # Try different possible import paths for SAM3
-    BUILD_FUNC_NAME = None
-    build_sam3_image_model = None
-    build_sam3 = None
-    
-    try:
-        from sam3 import build_sam3_image_model
-        BUILD_FUNC = build_sam3_image_model
-        BUILD_FUNC_NAME = "build_sam3_image_model"
-    except ImportError:
-        try:
-            from sam3.model_builder import build_sam3
-            BUILD_FUNC = build_sam3
-            BUILD_FUNC_NAME = "build_sam3"
-        except ImportError:
-            BUILD_FUNC = None
-            BUILD_FUNC_NAME = None
-    
-    from sam3.model.sam3_image_processor import Sam3Processor
-    SAM3_AVAILABLE = True
-except ImportError as e:
-    SAM3_AVAILABLE = False
-    BUILD_FUNC = None
-    BUILD_FUNC_NAME = None
-    build_sam3_image_model = None
-    build_sam3 = None
-    print("Warning: sam3 package not found. Please install it with:")
-    print("  pip install git+https://github.com/facebookresearch/sam3.git")
-    print("  or")
-    print("  git clone https://github.com/facebookresearch/sam3.git")
-    print("  cd sam3")
-    print("  pip install -e .")
-    print(f"\nImport error: {e}")
-    print("\nSee: https://github.com/facebookresearch/sam3")
+from sam3 import build_sam3_image_model
+from sam3.model.sam3_image_processor import Sam3Processor
+
+########################################### visualization helper #################################################
+import matplotlib.pyplot as plt
+def show_mask(mask, ax, random_color=False, borders = True):
+    if random_color:
+        color = np.concatenate([np.random.random(3), np.array([0.6])], axis=0)
+    else:
+        color = np.array([30/255, 144/255, 255/255, 0.6])
+    h, w = mask.shape[-2:]
+    mask = mask.astype(np.uint8)
+    mask_image =  mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
+    if borders:
+        import cv2
+        contours, _ = cv2.findContours(mask,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
+        # Try to smooth contours
+        contours = [cv2.approxPolyDP(contour, epsilon=0.01, closed=True) for contour in contours]
+        mask_image = cv2.drawContours(mask_image, contours, -1, (1, 1, 1, 0.5), thickness=2) 
+    ax.imshow(mask_image)
+
+def show_points(coords, labels, ax, marker_size=375):
+    pos_points = coords[labels==1]
+    neg_points = coords[labels==0]
+    ax.scatter(pos_points[:, 0], pos_points[:, 1], color='green', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)
+    ax.scatter(neg_points[:, 0], neg_points[:, 1], color='red', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)   
+
+def show_box(box, ax):
+    x0, y0 = box[0], box[1]
+    w, h = box[2] - box[0], box[3] - box[1]
+    ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0, 0, 0, 0), lw=2))    
+
+def show_masks(image, masks, scores, point_coords=None, box_coords=None, input_labels=None, borders=True):
+    for i, (mask, score) in enumerate(zip(masks, scores)):
+        plt.figure(figsize=(10, 10))
+        plt.imshow(image)
+        show_mask(mask, plt.gca(), borders=borders)
+        if point_coords is not None:
+            assert input_labels is not None
+            show_points(point_coords, input_labels, plt.gca())
+        if box_coords is not None:
+            # boxes
+            show_box(box_coords, plt.gca())
+        if len(scores) > 1:
+            plt.title(f"Mask {i+1}, Score: {score:.3f}", fontsize=18)
+        plt.axis('off')
+        # plt.show()
+        plt.savefig(f"mask_vis_{i+1}.png")
+###############################################################################################################
 
 
 def load_annotation(annotation_path: Path) -> Optional[Dict]:
@@ -121,12 +134,32 @@ def get_device():
     
     return device
 
+def build_model(model_path: Optional[str] = None) -> Tuple[torch.nn.Module, Sam3Processor]:
+    """Build and return the SAM3 model and processor."""
+    # Get device
+    device = get_device()
+    print(f"Using device: {device}")
+    
+    # Build SAM3 model
+    if model_path:
+        model = build_sam3_image_model(checkpoint_path=model_path, enable_inst_interactivity=True)
+    else:
+        model = build_sam3_image_model(enable_inst_interactivity=True)
+    
+    model.eval()
+    model.to(device)
+    
+    # Create processor
+    processor = Sam3Processor(model)
+    
+    return model, processor
+
 
 def generate_mask_sam3(
     image: Image.Image,
     point: Tuple[float, float],
-    model_path: Optional[str] = None,
-    model_type: str = "vit_h"
+    model: torch.nn.Module,
+    processor: Sam3Processor,
 ) -> Optional[np.ndarray]:
     """
     Generate mask using SAM3 model.
@@ -134,57 +167,12 @@ def generate_mask_sam3(
     Args:
         image: Input image as PIL Image
         point: Point coordinates (x, y)
-        model_path: Path to SAM3 checkpoint file (optional)
-        model_type: Model type - "vit_h", "vit_l", or "vit_b"
+        model: Pre-loaded SAM3 model
+        processor: Pre-loaded SAM3 processor
     
     Returns:
         Binary mask as numpy array (H, W) with values 0 or 1
     """
-    if not SAM3_AVAILABLE:
-        raise ImportError("sam3 package is required. Install from: https://github.com/facebookresearch/sam3")
-    
-    # Get device
-    device = get_device()
-    print(f"Using device: {device}")
-    
-    # Build SAM3 model
-    try:
-        if BUILD_FUNC is None:
-            raise ImportError("Could not find SAM3 build function")
-        
-        # Try building the model - different build functions may have different signatures
-        if BUILD_FUNC_NAME == "build_sam3_image_model":
-            # build_sam3_image_model() may take no args or checkpoint path
-            if model_path:
-                model = BUILD_FUNC(checkpoint_path=model_path)
-            else:
-                model = BUILD_FUNC()
-        else:
-            # build_sam3() with model config
-            if model_path:
-                model = BUILD_FUNC(
-                    model_cfg=model_type,
-                    checkpoint_path=model_path,
-                    device=device
-                )
-            else:
-                model = BUILD_FUNC(
-                    model_cfg=model_type,
-                    device=device
-                )
-        
-        model.eval()
-        model.to(device)
-        
-        # Create processor
-        processor = Sam3Processor(model)
-    except Exception as e:
-        print(f"Error loading SAM3 model: {e}")
-        print("Make sure you have installed sam3 and downloaded the checkpoint if required.")
-        print("See: https://github.com/facebookresearch/sam3")
-        import traceback
-        traceback.print_exc()
-        return None
     
     # Set the image (computes image embeddings)
     try:
@@ -195,35 +183,30 @@ def generate_mask_sam3(
     
     # Prepare point coordinates
     # SAM3 expects points in format: np.array([[x, y]]) with shape (1, 2) for single point
-    # Based on the notebook example: point_coords should be shape (1, 2) for a single point
-    # point_labels should be shape (1, 1) for a single point: np.array([[1]])
     point_coords = np.array([[point[0], point[1]]], dtype=np.float32)
-    point_labels = np.array([[1]], dtype=np.int32)  # 1 indicates foreground point
+    point_labels = np.array([1], dtype=np.int32)  # 1 indicates foreground point
     
-    # Generate mask using predict_inst
-    # Based on notebook: model.predict_inst(inference_state, point_coords=..., point_labels=..., ...)
+    # Generate mask
     try:
-        masks, scores, _ = model.predict_inst(
+        masks, scores, logits = model.predict_inst(
             inference_state,
             point_coords=point_coords,
             point_labels=point_labels,
-            multimask_output=False  # Return single best mask
+            multimask_output=True,
         )
         
-        # masks shape depends on output: could be (num_masks, H, W) or (1, H, W) or (1, 1, H, W)
-        # Handle different possible shapes
-        if isinstance(masks, torch.Tensor):
-            masks = masks.cpu().numpy()
+        sorted_ind = np.argsort(scores)[::-1]
+        masks = masks[sorted_ind]
+        scores = scores[sorted_ind]
+        logits = logits[sorted_ind]
         
-        # Flatten to get the mask
-        if masks.ndim == 4:
-            mask = masks[0, 0]  # (batch, num_masks, H, W) -> (H, W)
-        elif masks.ndim == 3:
-            mask = masks[0]  # (num_masks, H, W) or (1, H, W) -> (H, W)
-        else:
-            mask = masks  # Already (H, W)
+        # show_masks(image, masks, scores, point_coords=point_coords, input_labels=point_labels, borders=True)
+        # breakpoint()
         
-        # Convert to binary (0 or 1) - masks are typically float in [0, 1]
+        # pick top 1 mask
+        mask = masks[0]
+        
+        # Convert to binary (0 or 1)
         mask = (mask > 0.5).astype(np.uint8)
         
         return mask
@@ -265,7 +248,7 @@ def update_annotation_with_mask(annotation_path: Path, mask_filename: str):
         print(f"Error updating annotation file: {e}")
 
 
-def process_scene(scene_dir: Path, model_path: Optional[str] = None, model_type: str = "vit_h"):
+def process_scene(scene_dir, model, processor) -> bool:
     """Process a single scene directory."""
     print(f"\nProcessing scene: {scene_dir.name}")
     
@@ -294,12 +277,12 @@ def process_scene(scene_dir: Path, model_path: Optional[str] = None, model_type:
     
     # Generate mask
     print("Generating mask with SAM3...")
-    mask = generate_mask_sam3(image, point, model_path=model_path, model_type=model_type)
+    mask = generate_mask_sam3(image, point, model=model, processor=processor)
     if mask is None:
         return False
     
     # Save mask
-    mask_filename = "mask.png"
+    mask_filename = "mask_b.png"
     mask_path = scene_dir / mask_filename
     save_mask(mask, mask_path)
     
@@ -343,11 +326,7 @@ def main():
         print(f"Error: Data root '{data_root}' does not exist or is not a directory.")
         return 1
     
-    if not SAM3_AVAILABLE:
-        print("Error: sam3 package is required but not installed.")
-        print("Install with: pip install git+https://github.com/facebookresearch/sam3.git")
-        print("Or see: https://github.com/facebookresearch/sam3")
-        return 1
+    model, processor = build_model(model_path=args.model_path)
     
     # Process scenes
     if args.scene:
@@ -356,7 +335,7 @@ def main():
         if not scene_dir.is_dir():
             print(f"Error: Scene directory '{scene_dir}' does not exist.")
             return 1
-        process_scene(scene_dir, model_path=args.model_path, model_type=args.model_type)
+        process_scene(scene_dir, model=model, processor=processor)
     else:
         # Process all scenes
         scenes = [d for d in data_root.iterdir() if d.is_dir()]
@@ -367,7 +346,7 @@ def main():
         print(f"Found {len(scenes)} scene(s) to process")
         success_count = 0
         for scene_dir in sorted(scenes):
-            if process_scene(scene_dir, model_path=args.model_path, model_type=args.model_type):
+            if process_scene(scene_dir, model=model, processor=processor):
                 success_count += 1
         
         print(f"\nCompleted: {success_count}/{len(scenes)} scenes processed successfully")

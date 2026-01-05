@@ -23,9 +23,8 @@ Each scene subdirectory must contain at least two images named `image_a.*` and `
 From the repository root:
 
 ```bash
-python -m venv annotate/.venv
-source annotate/.venv/bin/activate  # Windows: annotate\.venv\Scripts\activate
-pip install -r annotate/requirements.txt
+uv sync
+source .venv/bin/activate  # Windows: annotate\.venv\Scripts\activate
 ```
 
 ## Running the server
@@ -87,8 +86,8 @@ After creating annotations, you can generate object masks using SAM3 (Segment An
 
 1. Install additional dependencies:
    ```bash
-   pip install numpy torch torchvision
-   pip install git+https://github.com/facebookresearch/sam3.git
+   uv pip install numpy torch torchvision
+   uv pip install git+https://github.com/facebookresearch/sam3.git
    ```
    
    Or install from source:
@@ -106,12 +105,12 @@ After creating annotations, you can generate object masks using SAM3 (Segment An
 
 Generate masks for all scenes:
 ```bash
-python generate_mask.py /path/to/root_folder --model-path /path/to/sam3_h.pt
+python generate_mask.py /path/to/root_folder --model-path /path/to/sam3.pt
 ```
 
 Generate mask for a specific scene:
 ```bash
-python generate_mask.py /path/to/root_folder --scene scene_001 --model-path /path/to/sam3_h.pt
+python generate_mask.py /path/to/root_folder --scene scene_001 --model-path /path/to/sam3.pt
 ```
 
 Options:

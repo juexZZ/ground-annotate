@@ -11,6 +11,7 @@
     "image_size": {
       "width": 1702,
       "height": 1276
-    }
+    },
+    "mask": "mask.png"
   }
 }
