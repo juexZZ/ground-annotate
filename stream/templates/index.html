@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stream Annotation Tool</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body data-images-root="{{ images_root }}" data-labels-path="{{ labels_path }}" data-output-path="{{ output_path }}">
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <h1>Stream Annotation Tool</h1>
+        <p class="subtitle">Click an object in the image, then click a predefined label. Use ← / → to navigate quickly.</p>
+      </div>
+      <div class="dataset-path">
+        <div><span>Images root:</span> <code>{{ images_root }}</code></div>
+        <div><span>Labels json:</span> <code>{{ labels_path }}</code></div>
+        <div><span>Output json:</span> <code>{{ output_path }}</code></div>
+      </div>
+    </header>
+
+    <section class="controls">
+      <button id="prevBtn" type="button">◀ Prev</button>
+      <button id="nextBtn" type="button" class="primary">Next ▶</button>
+      <div id="statusLine" class="scene-status" aria-live="polite"></div>
+      <div class="spacer"></div>
+      <button id="newTraverseBtn" type="button" class="secondary">New traverse?</button>
+      <div id="traverseCount" class="scene-status"></div>
+    </section>
+
+    <div class="layout">
+      <aside class="scene-browser">
+        <div class="scene-browser__header">
+          <strong>Images</strong>
+          <small>Completed images are marked. Images with any labeled points are highlighted.</small>
+        </div>
+        <div id="imageList" class="scene-list" role="list"></div>
+      </aside>
+
+      <main class="workspace">
+        <div class="image-area stream-one">
+          <div class="image-panel">
+            <div class="panel-header">
+              <h3 id="imageTitle">Image</h3>
+              <span id="imageMeta" class="tag">—</span>
+            </div>
+            <div id="imageWrapper" class="image-wrapper click-target">
+              <img id="imageMain" alt="Stream frame" />
+              <div id="pendingMarker" class="click-marker hidden pending"></div>
+              <div id="markersLayer" class="markers-layer" aria-hidden="true"></div>
+            </div>
+            <div class="label-bar" id="labelBar" aria-label="Predefined labels"></div>
+            <div class="hint" id="hintLine">Tip: click a point, then click its label. You can add multiple points per image.</div>
+          </div>
+        </div>
+
+        <section class="annotation-panel" aria-live="polite">
+          <h3>Current image annotations</h3>
+          <div id="annotationChips" class="chip-row"></div>
+          <div class="status-line" id="saveStatus"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
+

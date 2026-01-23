@@ -455,3 +455,4 @@ function setStatus(message) {
     updateSceneStatus(true);
   }
 }
+

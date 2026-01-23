@@ -1,2 +1,3 @@
 .venv/
 sam3/
+__pycache__/

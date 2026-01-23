@@ -30,7 +30,7 @@ source .venv/bin/activate  # Windows: annotate\.venv\Scripts\activate
 ## Running the server
 
 ```
-python server.py /path/to/root_folder
+python pairwise/server.py /path/to/root_folder
 ```
 
 Default host/port are `127.0.0.1:1234`. You can customize them with `--host` or `--port` if needed. When the server is running, open `http://localhost:1234` in your browser.
@@ -39,7 +39,7 @@ Default host/port are `127.0.0.1:1234`. You can customize them with `--host` or 
 
 If the dataset lives on a remote workstation but you want to annotate from a laptop:
 
-- Launch the server on the workstation with a publicly reachable interface, e.g. `python annotate/server.py /data/path --host 0.0.0.0 --port 1234`, and open `http://<workstation-ip>:1234` from your laptop (make sure firewalls allow that port).
+- Launch the server on the workstation with a publicly reachable interface, e.g. `python pairwise/server.py /data/path --host 0.0.0.0 --port 1234`, and open `http://<workstation-ip>:1234` from your laptop (make sure firewalls allow that port).
 - Alternatively, use SSH port forwarding: `ssh -L 1234:localhost:1234 user@workstation` and run the server on the workstation with the default host/port; then browse to `http://localhost:1234` locally.
 
 ## Using the UI
@@ -137,13 +137,14 @@ After mask generation, the annotation file will include a mask reference:
     "updated_at": "2024-05-01T12:34:56.789123+00:00",
     "image": "image_b.jpg",
     "image_size": {"width": 1024, "height": 768},
-    "mask": "mask.png"
+    "mask": "mask_b.png"
   }
 }
 ```
 
 ## Development notes
 
-- The server is a small Flask app located in `annotate/server.py`. Static assets live under `annotate/static/` and the HTML template is in `annotate/templates/`.
+- Pairwise annotation tool: `pairwise/server.py` (assets: `pairwise/static/`, template: `pairwise/templates/`).
+- Stream annotation tool: `stream/server.py` (assets: `stream/static/`, template: `stream/templates/`).
 - No external services are required; everything runs locally.
 - Mask generation script: `generate_mask.py`
