@@ -1,0 +1,891 @@
+{
+  "version": 1,
+  "labels": [
+    "tomato",
+    "green pepper",
+    "carrot",
+    "eggplant",
+    "pumpkin"
+  ],
+  "images": [
+    {
+      "file": "left_1768798238702970000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798246702449000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798249802246000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798251002196000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798253102042000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798255301884000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798258901655000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798260001582000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798260701528000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798262801394000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798263201395000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "green pepper",
+          "point": {
+            "x": 506.2015503875969,
+            "y": 454.4279250161604
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798263601380000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "green pepper",
+          "point": {
+            "x": 403.8759689922481,
+            "y": 469.9418228829994
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798264001331000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "green pepper",
+          "point": {
+            "x": 289.92248062015506,
+            "y": 494.76405946994186
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798265301227000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798268001044000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798268901006000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "pumpkin",
+          "point": {
+            "x": 644.9612403100775,
+            "y": 396.50937297996126
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798273100725000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798274300630000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798276700475000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798278200374000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 616.2790697674419,
+            "y": 422.365869424693
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798280600229000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 648.062015503876,
+            "y": 437.87976729153206
+          }
+        },
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 417.8294573643411,
+            "y": 446.1538461538462
+          }
+        },
+        {
+          "category": "carrot",
+          "point": {
+            "x": 443.4108527131783,
+            "y": 399.61215255332905
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798281600149000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 403.8759689922481,
+            "y": 465.8047834518423
+          }
+        },
+        {
+          "category": "carrot",
+          "point": {
+            "x": 484.49612403100775,
+            "y": 416.16031027795736
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798282400098000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 463.56589147286826,
+            "y": 472.01034259857795
+          }
+        },
+        {
+          "category": "carrot",
+          "point": {
+            "x": 612.4031007751938,
+            "y": 430.63994828700714
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798282900070000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 477.5193798449613,
+            "y": 485.45572074983846
+          }
+        },
+        {
+          "category": "carrot",
+          "point": {
+            "x": 683.7209302325582,
+            "y": 447.18810601163545
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798283800010000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 513.953488372093,
+            "y": 503.03813833225604
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798285899873000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "carrot",
+          "point": {
+            "x": 456.58914728682174,
+            "y": 517.5177763413058
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798286499845000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "carrot",
+          "point": {
+            "x": 119.37984496124032,
+            "y": 603.3613445378152
+          }
+        }
+      ]
+    },
+    {
+      "file": "left_1768798286999799000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798287399769000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798287799746000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798288199716000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798288599691000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798288999660000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798289399641000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798289699618000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798289999589000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798290299574000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798290799540000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798291199518000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798291699500000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798294299315000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798296099193000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798297999069000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798299398978000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798301398845000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798302598759000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798304298652000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798305198593000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798305498564000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798306398522000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798306998465000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798308098401000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798309798280000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798312598119000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798312998080000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798315797877000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798318497712000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798320097615000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798320497574000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798322297463000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798323097400000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798323497389000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "left_1768798325497249000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798238631989000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798246731452000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798249831245000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798251031195000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798253131059000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798255330892000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798258930659000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798259930578000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798260730535000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798262830396000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798263230356000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798263630366000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798264030309000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798265330218000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798268030040000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798268929971000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798273129707000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798274329625000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798276729451000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798278229356000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798280329228000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798281629139000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798282429078000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798282929044000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798283828978000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 206.97674418604652,
+            "y": 615.7724628312865
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798285928846000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798286228822000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798287028769000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 627.1317829457365,
+            "y": 785.3910795087266
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798287428741000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 631.7829457364342,
+            "y": 778.1512605042018
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798287828708000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 532.5581395348837,
+            "y": 742.9864253393666
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798288228681000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 445.73643410852713,
+            "y": 714.0271493212671
+          }
+        },
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 646.5116279069767,
+            "y": 573.3678086619263
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798288628662000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 462.79069767441865,
+            "y": 776.0827407886233
+          }
+        },
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 568.217054263566,
+            "y": 548.5455720749839
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798289028631000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "tomato",
+          "point": {
+            "x": 437.984496124031,
+            "y": 791.5966386554622
+          }
+        },
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 475.1937984496124,
+            "y": 521.6548157724628
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798289428597000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 392.2480620155039,
+            "y": 498.901098901099
+          }
+        },
+        {
+          "category": "carrot",
+          "point": {
+            "x": 672.093023255814,
+            "y": 573.3678086619263
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798289728607000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 396.12403100775197,
+            "y": 526.8261150614093
+          }
+        },
+        {
+          "category": "carrot",
+          "point": {
+            "x": 693.7984496124031,
+            "y": 612.6696832579186
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798290028564000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 436.4341085271318,
+            "y": 551.6483516483516
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798290328549000.png",
+      "new_traversal": false,
+      "annotations": [
+        {
+          "category": "eggplant",
+          "point": {
+            "x": 527.9069767441861,
+            "y": 614.7382029734971
+          }
+        }
+      ]
+    },
+    {
+      "file": "right_1768798290628524000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798291028492000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798291728456000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798294128296000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798295928173000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798298028026000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798299227969000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798301227800000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798302627717000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798304127607000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798304927571000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798305527509000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798306427451000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798306727434000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798307927353000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798309827218000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798312427051000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798313027074000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798315826825000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798318526642000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798319926547000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798320526526000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798321926414000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798323126321000.png",
+      "new_traversal": false,
+      "annotations": []
+    },
+    {
+      "file": "right_1768798323526311000.png",
+      "new_traversal": false,
+      "annotations": []
+    }
+  ]
+}
