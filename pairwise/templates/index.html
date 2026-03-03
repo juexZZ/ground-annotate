@@ -56,9 +56,15 @@
             </div>
             <div id="imageBWrapper" class="image-wrapper click-target">
               <img id="imageB" alt="Scene for annotation" />
-              <div id="clickMarker" class="click-marker hidden"></div>
+              <img id="maskOverlay" class="mask-overlay hidden" alt="Mask preview overlay" />
+              <div id="pointLayer" class="point-layer"></div>
             </div>
-            <p class="hint">Click on the newly appeared object in Image B to create or overwrite an annotation.</p>
+            <p class="hint">First left click sets the annotation point. Additional left/right clicks add positive/negative refinement points.</p>
+            <div class="point-legend" aria-label="Point color legend">
+              <span class="legend-item"><span class="legend-dot annotation"></span>Annotation point</span>
+              <span class="legend-item"><span class="legend-dot positive"></span>Positive refinement</span>
+              <span class="legend-item"><span class="legend-dot negative"></span>Negative refinement</span>
+            </div>
           </div>
         </div>
 
@@ -74,9 +80,14 @@
             <input id="labelInput" type="text" placeholder="e.g., bicycle" autocomplete="off" />
           </div>
           <div class="action-row">
+            <button id="generateMaskBtn" type="button" class="secondary" disabled>Generate / Update Mask</button>
+            <button id="clearPointsBtn" type="button" disabled>Clear points</button>
+          </div>
+          <div class="action-row">
             <button id="confirmBtn" type="button" class="primary" disabled>Confirm</button>
             <button id="cancelBtn" type="button" disabled>Cancel</button>
           </div>
+          <div class="status-line" id="maskStatus"></div>
           <div class="status-line" id="saveStatus"></div>
         </section>
 

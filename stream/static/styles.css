@@ -73,6 +73,7 @@ body {
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 

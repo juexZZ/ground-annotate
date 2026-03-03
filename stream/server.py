@@ -142,8 +142,11 @@ def create_app(images_root: Path, labels_json: Path, output_json: Optional[Path]
     labels = _load_labels(resolved_labels)
 
     resolved_output = (output_json or _default_output_path(resolved_root)).expanduser().resolve()
-    if not str(resolved_output).startswith(str(resolved_root)):
-        raise ValueError("Output json must live inside the images root folder (for safety).")
+    # Allow writing inside the images folder *or* one directory above it.
+    # This is still a safety guard against writing arbitrary paths.
+    allowed_roots = (resolved_root, resolved_root.parent)
+    if not any(resolved_output.is_relative_to(root) for root in allowed_roots):
+        raise ValueError("Output json must live inside the images root folder or its parent folder.")
 
     def _list_images() -> List[Path]:
         images: List[Path] = []
@@ -275,7 +278,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         default=None,
-        help="Output results json path (must be inside images_root). Default: <images_root>/stream_annotations.json",
+        help="Output results json path. Default: stream_annotations.json",
     )
     parser.add_argument("--host", default="127.0.0.1", help="Host interface to bind. Default: %(default)s")
     parser.add_argument("--port", type=int, default=1235, help="Port to serve the UI. Default: %(default)s")

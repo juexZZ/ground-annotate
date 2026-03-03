@@ -27,11 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
   dom.imageMeta = document.getElementById('imageMeta');
   dom.prevBtn = document.getElementById('prevBtn');
   dom.nextBtn = document.getElementById('nextBtn');
+  dom.prevUnannotatedBtn = document.getElementById('prevUnannotatedBtn');
+  dom.nextUnannotatedBtn = document.getElementById('nextUnannotatedBtn');
+  dom.unannotatedCount = document.getElementById('unannotatedCount');
   dom.newTraverseBtn = document.getElementById('newTraverseBtn');
   dom.traverseCount = document.getElementById('traverseCount');
 
   dom.prevBtn.addEventListener('click', () => navigate(-1));
   dom.nextBtn.addEventListener('click', () => navigate(1));
+  dom.prevUnannotatedBtn.addEventListener('click', () => jumpToUnannotated(-1));
+  dom.nextUnannotatedBtn.addEventListener('click', () => jumpToUnannotated(1));
 
   dom.newTraverseBtn.addEventListener('click', () => {
     state.newTraversal = !state.newTraversal;
@@ -118,6 +123,7 @@ function renderImageList() {
     empty.textContent = 'No images found.';
     empty.className = 'empty';
     dom.imageList.appendChild(empty);
+    updateUnannotatedCount();
     return;
   }
 
@@ -149,6 +155,7 @@ function renderImageList() {
     button.addEventListener('click', () => jumpToIndex(idx));
     dom.imageList.appendChild(button);
   });
+  updateUnannotatedCount();
 }
 
 function renderLabelBar() {
@@ -329,6 +336,40 @@ function updateTraverseCount() {
   }
   const isStart = Boolean(state.images[idx]?.result?.new_traversal);
   dom.traverseCount.textContent = `Traversal: ${count}${isStart ? ' (start)' : ''}`;
+}
+
+function updateUnannotatedCount() {
+  const total = state.images.length;
+  if (!total) {
+    dom.unannotatedCount.textContent = '';
+    dom.prevUnannotatedBtn.disabled = true;
+    dom.nextUnannotatedBtn.disabled = true;
+    return;
+  }
+  const remaining = state.images.reduce((sum, img) => sum + (img?.completed ? 0 : 1), 0);
+  dom.unannotatedCount.textContent = `Unannotated: ${remaining}`;
+  const disabled = remaining === 0;
+  dom.prevUnannotatedBtn.disabled = disabled;
+  dom.nextUnannotatedBtn.disabled = disabled;
+}
+
+async function jumpToUnannotated(direction) {
+  if (!state.images.length) return;
+  if (state.isSaving) return;
+  const total = state.images.length;
+  if (state.images.every((img) => img?.completed)) {
+    setStatus('All images annotated.');
+    return;
+  }
+  const dir = direction >= 0 ? 1 : -1;
+  for (let step = 1; step <= total; step += 1) {
+    const idx = (state.currentIndex + dir * step + total) % total;
+    if (!state.images[idx]?.completed) {
+      await saveCurrentIfNeeded({ reason: 'jump' });
+      await loadImageAt(idx);
+      return;
+    }
+  }
 }
 
 async function jumpToIndex(index) {

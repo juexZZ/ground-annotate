@@ -46,8 +46,9 @@ If the dataset lives on a remote workstation but you want to annotate from a lap
 
 - The scene dropdown and sidebar list let you jump to any subfolder; annotated scenes are marked in green and show a check icon when active.
 - A "Next" button iterates through scenes sequentially.
-- Image A (left) is a read-only reference. Image B (right) is clickable: clicking records the coordinate of the new object (coordinates are stored in Image B pixel space, adjusted for scaling).
-- After clicking Image B, a sidebar form shows the coordinate and lets you type a category label. "Confirm" writes `annotation.json` in the scene folder (overwriting any previous annotation). "Cancel" discards the pending click.
+- Image A (left) is a read-only reference. Image B (right) supports interactive mask prompting: **left click = positive point**, **right click = negative point** (coordinates are stored in Image B pixel space, adjusted for scaling).
+- After adding points and a category label, click **Generate / Update Mask** to run SAM3 and preview the mask overlay. Add more left/right clicks and regenerate until satisfied.
+- **Confirm** writes `annotation.json` and `mask_b.png` in the scene folder (overwriting previous outputs). **Cancel** restores the latest saved annotation state for that scene.
 - Saved annotations automatically re-appear when you revisit a scene, and you can overwrite them by clicking and confirming again.
 - A "Create new scene" panel lets you upload `image_a`/`image_b` pairs directly from your machine; the tool will create a new subfolder, ingest the files, and immediately load it for annotation.
 
@@ -78,9 +79,9 @@ Each confirmation creates/overwrites `<scene>/annotation.json` with the followin
 
 `x` and `y` are stored in raw Image B pixel units (not screen coordinates) so they remain valid even if the UI is resized. The `image_size` entry captures the width and height of `image_b` at the time of annotation. Re-running the tool simply reuses the existing JSON files.
 
-## Generating Masks with SAM3
+## Interactive Masking with SAM3
 
-After creating annotations, you can generate object masks using SAM3 (Segment Anything Model 3) based on the annotated points.
+The pairwise server can load SAM3 at startup and generate masks directly during annotation (no separate post-processing step required).
 
 ### Setup
 
@@ -103,30 +104,29 @@ After creating annotations, you can generate object masks using SAM3 (Segment An
 
 ### Usage
 
-Generate masks for all scenes:
+Launch with SAM3 enabled (default behavior):
+```bash
+python pairwise/server.py /path/to/root_folder --mask-model-path /path/to/sam3.pt
+```
+
+If your SAM3 install can resolve default checkpoints, `--mask-model-path` is optional:
+```bash
+python pairwise/server.py /path/to/root_folder
+```
+
+Disable masking explicitly (fallback to point-only annotation):
+```bash
+python pairwise/server.py /path/to/root_folder --disable-masking
+```
+
+Legacy batch script is still available for offline processing:
 ```bash
 python generate_mask.py /path/to/root_folder --model-path /path/to/sam3.pt
 ```
 
-Generate mask for a specific scene:
-```bash
-python generate_mask.py /path/to/root_folder --scene scene_001 --model-path /path/to/sam3.pt
-```
-
-Options:
-- `--model-path`: Path to SAM3 checkpoint file (required)
-- `--model-type`: Model type - `vit_h`, `vit_l`, or `vit_b` (default: `vit_h`)
-- `--scene`: Process specific scene only (optional, processes all if not specified)
-
-The script will:
-1. Read the annotation point from `annotation.json`
-2. Generate a mask using SAM3 based on the point
-3. Save the mask as `mask.png` in the scene directory
-4. Update `annotation.json` to include a reference to the mask
-
 ### Updated Annotation Format
 
-After mask generation, the annotation file will include a mask reference:
+After interactive mask confirmation, the annotation file includes mask metadata:
 
 ```json
 {
@@ -137,7 +137,12 @@ After mask generation, the annotation file will include a mask reference:
     "updated_at": "2024-05-01T12:34:56.789123+00:00",
     "image": "image_b.jpg",
     "image_size": {"width": 1024, "height": 768},
-    "mask": "mask_b.png"
+    "mask_points": [
+      {"x": 512.4, "y": 318.2, "kind": "positive"},
+      {"x": 496.1, "y": 302.8, "kind": "negative"}
+    ],
+    "mask": "mask_b.png",
+    "mask_score": 0.987
   }
 }
 ```
