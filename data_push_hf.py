@@ -26,26 +26,49 @@ This script mirrors the style of `data_push_ADE20K_distraction.py`:
 - collect all samples
 - define a `Features` schema with `datasets.Image` columns
 - create a DatasetDict and push it to the Hub.
+
+Only essential fields are pushed:
+- id
+- image_a
+- image_b
+- mask_b
+- label
+- point_b (annotation point normalized to [0, 1] in image_b coordinates)
 """
 
 import argparse
 import json
-import os
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
 from datasets import Dataset, DatasetDict, Features, Image, Sequence, Value
+from PIL import Image as PILImage
 
 
 def find_image(path: Path, stem: str) -> Path:
     """
     Find an image file in `path` with base name `stem` and common image extensions.
+    First tries exact lowercase naming (e.g. image_a.jpg), then case-insensitive
+    basename matching (e.g. Image_A.JPG).
     """
     exts = [".jpg", ".jpeg", ".png", ".bmp", ".webp"]
+
+    # Exact conventional name first.
     for ext in exts:
         candidate = path / f"{stem}{ext}"
         if candidate.exists():
             return candidate
+
+    # Case-insensitive basename fallback.
+    target = stem.lower()
+    for entry in sorted(path.iterdir()):
+        if not entry.is_file():
+            continue
+        if entry.suffix.lower() not in exts:
+            continue
+        if entry.stem.lower() == target:
+            return entry
+
     raise FileNotFoundError(f"No image found for '{stem}' under {path}")
 
 
@@ -63,8 +86,7 @@ def load_scene(scene_dir: Path) -> Dict[str, Any]:
     scene_id = str(data.get("scene", scene_dir.name))
     ann = data.get("annotation", {}) or {}
 
-    point = ann.get("point", {}) or {}
-    image_size = ann.get("image_size", {}) or {}
+    point = ann.get("annotation_point") or ann.get("point", {}) or {}
 
     # Images and mask paths (HF datasets.Image accepts local file paths)
     image_a_path = find_image(scene_dir, "image_a")
@@ -77,21 +99,27 @@ def load_scene(scene_dir: Path) -> Dict[str, Any]:
         alt = scene_dir / "mask.png"
         if alt.exists():
             mask_path = alt
+        else:
+            raise FileNotFoundError(f"Mask file not found in {scene_dir} (expected {mask_name} or mask.png)")
+
+    if "x" not in point or "y" not in point:
+        raise ValueError(f"Missing annotation point in {scene_dir / 'annotation.json'}")
+
+    with PILImage.open(image_b_path) as img_b:
+        image_b_width, image_b_height = img_b.size
+    if image_b_width <= 0 or image_b_height <= 0:
+        raise ValueError(f"Invalid image_b size in {scene_dir}: {(image_b_width, image_b_height)}")
+
+    point_x_norm = min(1.0, max(0.0, float(point["x"]) / float(image_b_width)))
+    point_y_norm = min(1.0, max(0.0, float(point["y"]) / float(image_b_height)))
 
     sample = {
         "id": scene_id,
-        "scene": scene_id,
         "image_a": str(image_a_path),
         "image_b": str(image_b_path),
         "mask_b": str(mask_path),
         "label": ann.get("label", ""),
-        "updated_at": ann.get("updated_at", ""),
-        "point": [
-            [float(point["x"])] if "x" in point else [],
-            [float(point["y"])] if "y" in point else [],
-        ],
-        "image_width": int(image_size["width"]) if "width" in image_size else -1,
-        "image_height": int(image_size["height"]) if "height" in image_size else -1,
+        "point_b": [point_x_norm, point_y_norm],
     }
 
     return sample
@@ -124,42 +152,43 @@ def split_indices(n: int, val_ratio: float) -> Tuple[List[int], List[int]]:
 
 def build_dataset_dict(
     samples: List[Dict[str, Any]],
+    split_mode: str,
     val_ratio: float,
 ) -> DatasetDict:
     """
-    Build a DatasetDict with train/validation splits and typed features.
+    Build a DatasetDict with typed features.
+
+    split_mode:
+      - "test": all samples are placed in a single test split (default)
+      - "train_val": split into train/validation by prefix and val_ratio
     """
     # Define features explicitly so that image columns are treated as images.
     features = Features(
         {
             "id": Value("string"),
-            "scene": Value("string"),
             "image_a": Image(),
             "image_b": Image(),
             "mask_b": Image(),
             "label": Value("string"),
-            "updated_at": Value("string"),
-            # Store point as 2x1 nested sequence [[x], [y]]
-            "point": Sequence(Sequence(Value("float32"))),
-            "image_width": Value("int32"),
-            "image_height": Value("int32"),
+            # Store point as [x, y] normalized to [0, 1] in image_b coordinates.
+            "point_b": Sequence(Value("float32"), length=2),
         }
     )
 
+    if split_mode == "test":
+        ds_test = Dataset.from_list(samples).cast(features)
+        return DatasetDict({"test": ds_test})
+
     n = len(samples)
     train_idx, val_idx = split_indices(n, val_ratio)
-
-    # Simple prefix-based split
     train_samples = [samples[i] for i in train_idx]
     val_samples = [samples[i] for i in val_idx]
 
     ds_train = Dataset.from_list(train_samples).cast(features)
     ds_dict: Dict[str, Dataset] = {"train": ds_train}
-
     if val_samples:
         ds_val = Dataset.from_list(val_samples).cast(features)
         ds_dict["validation"] = ds_val
-
     return DatasetDict(ds_dict)
 
 
@@ -179,10 +208,17 @@ def main() -> int:
         help="Target Hugging Face Hub dataset repo id, e.g. 'username/ground-annotate'.",
     )
     parser.add_argument(
+        "--split-mode",
+        type=str,
+        choices=["test", "train_val"],
+        default="test",
+        help="Dataset split mode: 'test' (default, all data in test split) or 'train_val'.",
+    )
+    parser.add_argument(
         "--val-ratio",
         type=float,
         default=0.1,
-        help="Fraction of samples to reserve for validation (default: 0.1).",
+        help="Fraction of samples to reserve for validation when --split-mode train_val (default: 0.1).",
     )
     parser.add_argument(
         "--private",
@@ -214,11 +250,12 @@ def main() -> int:
     if not samples:
         raise SystemExit("No valid samples were loaded; aborting.")
 
-    print(f"Loaded {len(samples)} sample(s); building DatasetDict...")
-    ds = build_dataset_dict(samples, val_ratio=args.val_ratio)
+    print(f"Loaded {len(samples)} sample(s); building DatasetDict (split_mode={args.split_mode})...")
+    ds = build_dataset_dict(samples, split_mode=args.split_mode, val_ratio=args.val_ratio)
 
     print(ds)
-    print(ds["train"][0])
+    first_split = next(iter(ds.keys()))
+    print(ds[first_split][0])
 
     print(f"Pushing to Hub: {args.repo_id} (private={args.private})")
     ds.push_to_hub(args.repo_id, private=bool(args.private))
