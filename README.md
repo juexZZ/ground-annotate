@@ -1,155 +1,46 @@
-# Human Annotation Tool
+# Ground Annotate
 
-This directory contains a standalone web tool for collecting "new object" annotations from pairs of images. It does not depend on the rest of the codebase and can be launched against any folder that contains scene subdirectories.
+A collection of standalone web tools for image annotation. The tools do not depend on the rest of the codebase and can be launched against any folder containing the expected layout.
 
-## Expected dataset layout
+Two annotation styles are available:
 
-```
-root_folder/
-├── scene_001/
-│   ├── image_a.jpg
-│   ├── image_b.jpg
-│   └── annotation.json          # created by the tool
-├── scene_002/
-│   ├── image_a.png
-│   └── image_b.png
-└── ...
-```
+- **Pairwise** — compare `image_a` (reference) with `image_b` (current observation) and click the newly appeared object. See [`pairwise/README.md`](pairwise/README.md).
+- **Stream** — annotate points on a flat folder of images against a predefined label set. See [`stream/README.md`](stream/README.md).
 
-Each scene subdirectory must contain at least two images named `image_a.*` and `image_b.*` (any of `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`). The annotator compares `image_a` (reference) with `image_b` (current observation) and clicks the newly appeared object in `image_b`.
-
-## Setup (recommended virtual environment)
+## Setup
 
 From the repository root:
 
 ```bash
 uv sync
-source .venv/bin/activate  # Windows: annotate\.venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 ```
 
-## Running the server
+## Stream annotation pipeline
 
-```
-python pairwise/server.py /path/to/root_folder
-```
+The stream tool annotates a flat folder of images against a predefined label set.
 
-Default host/port are `127.0.0.1:1234`. You can customize them with `--host` or `--port` if needed. When the server is running, open `http://localhost:1234` in your browser.
+0. **Preprocess (Metacam data)**
+The annotation pipeline should work with any image folder. For data captured using metacam, preprocessing script `process_metacam_data.py` should be called first.
+*TODO: modify the script to be not hardcoded.*
 
-### Remote access
+1. **Get example data.** Unzip `example_data/stream/28_metfloor_first150.zip` to play with the pipeline. You will get a folder of images plus a reference `stream_annotations.json` — the reference file is included only as a sanity check; running the tool will write a fresh annotations JSON of your own.
 
-If the dataset lives on a remote workstation but you want to annotate from a laptop:
+2. **Read the annotation guideline.** Open [`docs/stream_protocol.html`](docs/stream_protocol.html) in a browser for the labeling protocol.
 
-- Launch the server on the workstation with a publicly reachable interface, e.g. `python pairwise/server.py /data/path --host 0.0.0.0 --port 1234`, and open `http://<workstation-ip>:1234` from your laptop (make sure firewalls allow that port).
-- Alternatively, use SSH port forwarding: `ssh -L 1234:localhost:1234 user@workstation` and run the server on the workstation with the default host/port; then browse to `http://localhost:1234` locally.
+3. **Launch the server.** Point it at the unzipped image folder and a label set (example uses `label_28_metfloor.json` from the repo root):
 
-## Using the UI
-
-- The scene dropdown and sidebar list let you jump to any subfolder; annotated scenes are marked in green and show a check icon when active.
-- A "Next" button iterates through scenes sequentially.
-- Image A (left) is a read-only reference. Image B (right) supports interactive mask prompting: **left click = positive point**, **right click = negative point** (coordinates are stored in Image B pixel space, adjusted for scaling).
-- After adding points and a category label, click **Generate / Update Mask** to run SAM3 and preview the mask overlay. Add more left/right clicks and regenerate until satisfied.
-- **Confirm** writes `annotation.json` and `mask_b.png` in the scene folder (overwriting previous outputs). **Cancel** restores the latest saved annotation state for that scene.
-- Saved annotations automatically re-appear when you revisit a scene, and you can overwrite them by clicking and confirming again.
-- A "Create new scene" panel lets you upload `image_a`/`image_b` pairs directly from your machine; the tool will create a new subfolder, ingest the files, and immediately load it for annotation.
-
-## Uploading new scenes
-
-Use the upload panel on the right side of the UI:
-
-1. (Optional) Provide a scene name consisting of letters, numbers, `_` or `-`. If left blank, the tool will generate a timestamped name.
-2. Pick `image_a` and `image_b` from your machine (supported: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`).
-3. Click **Upload scene**. A new subdirectory will be created under the dataset root, the files will be saved inside it, and the UI will automatically switch to that scene so you can annotate immediately.
-
-## Annotation format
-
-Each confirmation creates/overwrites `<scene>/annotation.json` with the following structure:
-
-```json
-{
-  "scene": "scene_001",
-  "annotation": {
-    "point": {"x": 512.4, "y": 318.2},
-    "label": "bicycle",
-    "updated_at": "2024-05-01T12:34:56.789123+00:00",
-    "image": "image_b.jpg",
-    "image_size": {"width": 1024, "height": 768}
-  }
-}
-```
-
-`x` and `y` are stored in raw Image B pixel units (not screen coordinates) so they remain valid even if the UI is resized. The `image_size` entry captures the width and height of `image_b` at the time of annotation. Re-running the tool simply reuses the existing JSON files.
-
-## Interactive Masking with SAM3
-
-The pairwise server can load SAM3 at startup and generate masks directly during annotation (no separate post-processing step required).
-
-### Setup
-
-1. Install additional dependencies:
    ```bash
-   uv pip install numpy torch torchvision
-   uv pip install git+https://github.com/facebookresearch/sam3.git
-   ```
-   
-   Or install from source:
-   ```bash
-   git clone https://github.com/facebookresearch/sam3.git
-   cd sam3
-   pip install -e .
+   DATA_DIR=example_data/stream/28_metfloor_first150
+   python stream/server.py $DATA_DIR/images ./label_28_metfloor.json \
+       --output $DATA_DIR/stream_annotations.json --port 12346
    ```
 
-2. Download SAM3 checkpoint files (if required) from:
-   - https://github.com/facebookresearch/sam3
-   - Note: Some SAM3 models may auto-download checkpoints on first use
-
-### Usage
-
-Launch with SAM3 enabled (default behavior):
-```bash
-python pairwise/server.py /path/to/root_folder --mask-model-path /path/to/sam3.pt
-```
-
-If your SAM3 install can resolve default checkpoints, `--mask-model-path` is optional:
-```bash
-python pairwise/server.py /path/to/root_folder
-```
-
-Disable masking explicitly (fallback to point-only annotation):
-```bash
-python pairwise/server.py /path/to/root_folder --disable-masking
-```
-
-Legacy batch script is still available for offline processing:
-```bash
-python generate_mask.py /path/to/root_folder --model-path /path/to/sam3.pt
-```
-
-### Updated Annotation Format
-
-After interactive mask confirmation, the annotation file includes mask metadata:
-
-```json
-{
-  "scene": "scene_001",
-  "annotation": {
-    "point": {"x": 512.4, "y": 318.2},
-    "label": "bicycle",
-    "updated_at": "2024-05-01T12:34:56.789123+00:00",
-    "image": "image_b.jpg",
-    "image_size": {"width": 1024, "height": 768},
-    "mask_points": [
-      {"x": 512.4, "y": 318.2, "kind": "positive"},
-      {"x": 496.1, "y": 302.8, "kind": "negative"}
-    ],
-    "mask": "mask_b.png",
-    "mask_score": 0.987
-  }
-}
-```
+   Then open `http://localhost:12346` in your browser. See [`stream/README.md`](stream/README.md) for full UI details and the output format. Additional launch commands for other datasets are collected in `launch_stream_server.sh`.
 
 ## Development notes
 
 - Pairwise annotation tool: `pairwise/server.py` (assets: `pairwise/static/`, template: `pairwise/templates/`).
 - Stream annotation tool: `stream/server.py` (assets: `stream/static/`, template: `stream/templates/`).
-- No external services are required; everything runs locally.
 - Mask generation script: `generate_mask.py`
+- No external services are required; everything runs locally.

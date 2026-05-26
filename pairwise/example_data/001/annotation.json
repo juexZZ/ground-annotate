@@ -1,0 +1,17 @@
+{
+  "scene": "1",
+  "annotation": {
+    "point": {
+      "x": 1052.461224489796,
+      "y": 521.4172343324251
+    },
+    "label": "toilet paper",
+    "updated_at": "2025-12-05T09:14:13.386294+00:00",
+    "image": "image_b.jpg",
+    "image_size": {
+      "width": 1702,
+      "height": 1276
+    },
+    "mask": "mask.png"
+  }
+}

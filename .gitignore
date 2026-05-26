@@ -2,3 +2,6 @@
 sam3/
 __pycache__/
 label_*.json
+!example_data/dejaview_labels/*.json
+example_data/stream/28_metfloor_first150.zip
+example_data/stream/28_metfloor_first20/
